@@ -1,41 +1,54 @@
-#!/usr/bin/env node
-
-import { createClient } from 'redis';
-
-class RedisClient {
-  constructor () {
-    this.client = createClient();
-    this.clientConnected = true;
-    this.client.on('error', (err) => {
-      console.log('Redis client error', err);
-      this.clientConnected = false;
-    });
-    this.client.on('connect', () => {
-      this.clientConnected = true;
-    });
-  }
-    // Checks if the redis client is connected
-    isAlive(){
-        return(this.clientConnected);
+const { createClient } = require("redis");
+class RedisClient{
+    constructor(){
+        this.client = createClient();
+        this.client.on('error', err => console.log(err));
+    }
+    isAlive() {
+        return this.client.connected;
     }
 
-    // Async function that gets a value based on a key from redis
-    async function get(key){
-        const value = await client.get(key);
-        return(value);
+    async get(key){
+        return new Promise((resolve, reject) => {
+            this.client.GET(key, (error, value)=>{
+                if (error){
+                    reject(error);
+                }
+                else{
+                    resolve(value)
+                }
+            });
+        })
     }
 
-    // Async function that sets a key, value pair
-    async function set(key, values, duration){
-        await client.set(key, values, 'EX', duration);
+    async set(key, value, duration){
+        return new Promise((resolve, reject) => {
+            this.client.SET(key, value, 'EX', duration, (error, value)=>{
+                if (error){
+                    reject(error);
+                }
+                else{
+                    resolve(value)
+                }
+            });
+        })
     }
 
-    // Async function to delete a key, vlaue pair
-    async function del(key){
-        await client.del(key);
+    async del(key){
+        return new Promise((resolve, reject) => {
+            this.client.DEL(key,(error, value)=>{
+                if (error){
+                    reject(error);
+                }
+                else{
+                    resolve(value)
+                }
+            });
+        })
     }
+
+
 }
 
-
-export const redisClient = new RedisClient();
-export default redisClient;
+const redisClient = new RedisClient;
+module.exports = redisClient;
