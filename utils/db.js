@@ -10,33 +10,25 @@ class DBClient {
 
   async isAlive() {
     try {
-      await this.client.connect();
-      return true;
+      const connected = await this.client.isConnected();
+      return connected;
     } catch (error) {
       return false;
     }
   }
 
   async nbUsers() {
-    try {
-      await this.client.connect();
-      const db = this.client.db(this.database);
-      const count = await db.collection('users').countDocuments();
-      return count;
-    } catch (error) {
-      throw error;
-    }
+    await this.client.connect();
+    const db = this.client.db(this.database);
+    const count = await db.collection('users').countDocuments();
+    return count;
   }
 
   async nbFiles() {
-    try {
-      await this.client.connect();
-      const db = this.client.db(this.database);
-      const count = await db.collection('files').countDocuments();
-      return count;
-    } catch (error) {
-      throw error;
-    }
+    await this.client.connect();
+    const db = this.client.db(this.database);
+    const count = await db.collection('files').countDocuments();
+    return count;
   }
 }
 
